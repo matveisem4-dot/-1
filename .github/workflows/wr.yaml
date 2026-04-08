@@ -1,0 +1,33 @@
+name: ShadowGram Hybrid Server
+
+on:
+  push:
+    branches: [ main ]
+  schedule:
+    - cron: '0 */6 * * *' # Перезапуск каждые 6 часов
+  workflow_dispatch: # Возможность запустить вручную
+
+jobs:
+  run-server:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.9'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install flask flask-restful # Для создания API сервера
+
+      - name: Run Signaling Server
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          # Здесь запускается твой серверный скрипт
+          # Он будет принимать ID и IP пользователей
+          python server_script.py
