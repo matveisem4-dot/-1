@@ -1,5 +1,0 @@
-PyQt6
-PyQt6-WebEngine
-opencv-python
-numpy
-requests
