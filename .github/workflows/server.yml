@@ -1,0 +1,15 @@
+name: Eternal_IS1_Server
+on:
+  schedule:
+    - cron: "0 */4 * * *" # Перезагрузка каждые 4 часа
+  workflow_dispatch: # Ручной запуск
+
+jobs:
+  run-server:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Start Messaging Core
+        run: |
+          node server.js & 
+          sleep 14300 # Работает чуть меньше 4 часов, чтобы успеть перезапуститься
