@@ -1,0 +1,44 @@
+name: IS1_ULTIMATE_PIPELINE
+
+on:
+  push:
+    branches: [ main ]
+  schedule:
+    - cron: "0 */4 * * *" # Ребут сервера каждые 4 часа
+  workflow_dispatch:
+
+jobs:
+  # ЧАСТЬ 1: ВЕЧНЫЙ СЕРВЕР
+  run-server:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Start Messaging Core
+        env:
+          DB_SECRET_KEY: ${{ secrets.DB_SECRET_KEY }}
+        run: |
+          npm install express socket.io bcrypt crypto
+          node server.js
+        # Он будет висеть тут, пока гитхаб не прибьет джобу (ок. 6 часов макс)
+
+  # ЧАСТЬ 2: СБОРКА EXE И APK
+  build-apps:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build EXE (Electron)
+        run: |
+          npm install
+          npm run build-win
+      - name: Build APK (Capacitor)
+        run: |
+          npm install @capacitor/core @capacitor/android
+          npx cap add android
+          npx cap build android --androidreleasetype apk
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: Apps
+          path: |
+            dist/*.exe
+            android/app/build/outputs/apk/release/*.apk
