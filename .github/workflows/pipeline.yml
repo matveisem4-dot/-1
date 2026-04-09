@@ -4,11 +4,53 @@ on:
   push:
     branches: [ main ]
   schedule:
-    - cron: "0 */4 * * *" # Ребут сервера каждые 4 часа
+    - cron: "0 */4 * * *"
   workflow_dispatch:
 
 jobs:
-  # ЧАСТЬ 1: ВЕЧНЫЙ СЕРВЕР
+  # СОБИРАЕМ EXE ДЛЯ ВИНДЫ (На виндовом движке)
+  build-exe:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Build EXE
+        run: |
+          npm install
+          npm run build-win
+      - name: Upload EXE
+        uses: actions/upload-artifact@v4
+        with:
+          name: Windows-EXE
+          path: dist/*.exe
+
+  # СОБИРАЕМ APK ДЛЯ АНДРОИДА (На линуксе)
+  build-apk:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Build APK
+        run: |
+          npm install
+          npm install @capacitor/core @capacitor/android @capacitor/cli
+          npx cap add android
+          # ВАЖНО: Гитхаб соберет только если есть папка android/
+          # Если её нет, надо сначала запустить npx cap init
+          npx cap build android --androidreleasetype apk
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: Android-APK
+          path: android/app/build/outputs/apk/release/*.apk
+
+  # ТВОЙ ВЕЧНЫЙ СЕРВЕР (Оставляем на винде ради диска C)
   run-server:
     runs-on: windows-latest
     steps:
@@ -19,26 +61,3 @@ jobs:
         run: |
           npm install express socket.io bcrypt crypto
           node server.js
-        # Он будет висеть тут, пока гитхаб не прибьет джобу (ок. 6 часов макс)
-
-  # ЧАСТЬ 2: СБОРКА EXE И APK
-  build-apps:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - name: Build EXE (Electron)
-        run: |
-          npm install
-          npm run build-win
-      - name: Build APK (Capacitor)
-        run: |
-          npm install @capacitor/core @capacitor/android
-          npx cap add android
-          npx cap build android --androidreleasetype apk
-      - name: Upload Artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: Apps
-          path: |
-            dist/*.exe
-            android/app/build/outputs/apk/release/*.apk
