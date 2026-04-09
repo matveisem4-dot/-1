@@ -1,0 +1,31 @@
+{
+  "name": "is1-messenger",
+  "version": "1.0.0",
+  "description": "I.S.-1 Secure P2P Messenger",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "build-win": "electron-builder --win --x64",
+    "android-sync": "npx cap copy && npx cap sync android"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "socket.io": "^4.7.2",
+    "bcrypt": "^5.1.1",
+    "crypto": "^1.0.1",
+    "@capacitor/core": "^5.0.0",
+    "@capacitor/android": "^5.0.0"
+  },
+  "devDependencies": {
+    "electron": "^28.0.0",
+    "electron-builder": "^24.9.1",
+    "@capacitor/cli": "^5.0.0"
+  },
+  "build": {
+    "appId": "com.is1.messenger",
+    "win": {
+      "target": "portable",
+      "icon": "icon.ico"
+    }
+  }
+}
