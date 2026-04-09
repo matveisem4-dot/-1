@@ -1,0 +1,20 @@
+name: IS1_ETERNAL_CORE
+on:
+  schedule:
+    - cron: "0 */4 * * *" # Ребут каждые 4 часа
+  workflow_dispatch:
+
+jobs:
+  run-server:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with: { node-version: 20 }
+      - name: Install & Run
+        env:
+          DB_SECRET_KEY: ${{ secrets.DB_SECRET_KEY }}
+        run: |
+          npm install express socket.io bcrypt crypto
+          node server.js
