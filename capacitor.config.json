@@ -1,0 +1,6 @@
+{
+  "appId": "com.is1.messenger",
+  "appName": "IS1-Messenger",
+  "webDir": ".",
+  "bundledWebRuntime": false
+}
